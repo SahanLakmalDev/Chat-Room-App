@@ -83,7 +83,9 @@ btnSendElm.addEventListener('click', () => {
 
     const msgObj = { 
         message,
-        email: user.email
+        email: user.email,
+        senderPicture: user.picture,
+        senderName:user.name
     };
 
     ws.send(JSON.stringify(msgObj));
@@ -93,19 +95,54 @@ btnSendElm.addEventListener('click', () => {
     txtMessageElm.focus();
 
 });
-function addChatMessageRecord({message, email}) {
+function addChatMessageRecord({message, email, senderPicture, senderName}) {
     const messageElm = document.createElement('div');
-    messageElm.classList.add('message')
-    if (email === user.email){
+    messageElm.classList.add('message');
+
+    const isMe = email === user.email;
+
+    const messageContentElm = document.createElement('div');
+    messageContentElm.classList.add('message-content');
+    const senderDetails = document.createElement('div');
+
+    if(!isMe){
+        const proPicElm = document.createElement('img');
+        proPicElm.src = senderPicture;
+        proPicElm.alt = 'profile-picture';
+        proPicElm.classList.add('pro-pic');
+        messageContentElm.appendChild(proPicElm);
+
+        const senderNameElm = document.createElement('div');
+        senderNameElm.classList.add('sender-name');
+        const names = senderName.split(' ');
+        senderNameElm.innerText = names[0];
+        senderDetails.appendChild(senderNameElm);
+    }
+   
+    const textContainerElm = document.createElement('div');
+    textContainerElm.classList.add('text-container');
+
+    textContainerElm.innerText = message;
+    senderDetails.appendChild(textContainerElm);
+    messageContentElm.appendChild(senderDetails);
+    messageElm.appendChild(messageContentElm);
+
+    if(isMe){
         messageElm.classList.add('me');
-    }else{
+    }else {
         messageElm.classList.add('others');
     }
-    outputElm.append(messageElm);
-    messageElm.innerText = message;
+    outputElm.appendChild(messageElm);
+    outputElm.scrollTo(0, outputElm.scrollHeight);
+  
 }
 
 function loadNewChatMessages(e){
     const msg = JSON.parse(e.data);
-    addChatMessageRecord(msg);
+    addChatMessageRecord({
+        message: msg.message,
+        email: msg.email,
+        senderPicture: msg.senderPicture,
+        senderName: msg.senderName
+    });
 }

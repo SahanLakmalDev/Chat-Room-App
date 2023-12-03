@@ -113,6 +113,21 @@ main, #output-wrapper {
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
 }
+.pro-pic {
+    width: 30px; 
+    height: 30px; 
+    border-radius: 50%; 
+    margin-right: 8px; 
+}
+.message-content {
+    display: flex;
+    align-items: center;
+}
+.sender-name {
+    font-weight: bold;
+    font-size: 14px;
+    color: brown;
+}
 
 #btn-sign-out:hover {
     background-color: lightgray;
