@@ -95,7 +95,49 @@ btnSendElm.addEventListener('click', () => {
     txtMessageElm.focus();
 
 });
-function addChatMessageRecord({message, email, senderPicture, senderName}) {
+// Load messages from local storage
+function loadMessagesFromLocalStorage() {
+    const storedMessages = localStorage.getItem('chatMessages');
+    return storedMessages ? JSON.parse(storedMessages) : [];
+}
+
+// Function to initialize the chat with stored messages
+function initializeChat() {
+    const storedMessages = loadMessagesFromLocalStorage();
+
+   
+   outputElm.innerHTML = '';
+
+   
+   const uniqueMessages = [];
+
+   storedMessages.forEach((msg) => {
+       
+       if (!isMessageInOutput(msg, uniqueMessages)) {
+           uniqueMessages.push(msg);
+           addChatMessageRecord(msg, msg.isSent);
+       }
+   });
+}
+function isMessageInOutput(message, messagesArray) {
+    return messagesArray.some((msg) => (
+        msg.message === message.message &&
+        msg.email === message.email &&
+        msg.senderPicture === message.senderPicture &&
+        msg.senderName === message.senderName &&
+        msg.isSent === message.isSent
+    ));
+}
+
+// Call the initializeChat function when the page loads
+window.addEventListener('load', initializeChat);
+
+// Function to save messages to local storage
+function saveMessagesToLocalStorage(messages) {
+    localStorage.setItem('chatMessages', JSON.stringify(messages));
+}
+
+function addChatMessageRecord({message, email, senderPicture, senderName}, isSent=true) {
     const messageElm = document.createElement('div');
     messageElm.classList.add('message');
 
@@ -105,7 +147,7 @@ function addChatMessageRecord({message, email, senderPicture, senderName}) {
     messageContentElm.classList.add('message-content');
     const senderDetails = document.createElement('div');
 
-    if(!isMe){
+    if(!isSent){
         const proPicElm = document.createElement('img');
         proPicElm.src = senderPicture;
         proPicElm.alt = 'profile-picture';
@@ -127,22 +169,41 @@ function addChatMessageRecord({message, email, senderPicture, senderName}) {
     messageContentElm.appendChild(senderDetails);
     messageElm.appendChild(messageContentElm);
 
-    if(isMe){
+    if(isSent){
         messageElm.classList.add('me');
     }else {
         messageElm.classList.add('others');
     }
     outputElm.appendChild(messageElm);
     outputElm.scrollTo(0, outputElm.scrollHeight);
+
+    const storedMessages = loadMessagesFromLocalStorage();
+    storedMessages.push({ message, email, senderPicture, senderName, isSent });
+    saveMessagesToLocalStorage(storedMessages);
+    
   
 }
+// Function to handle a new chat message
+function handleNewChatMessage(msg) {
+    addChatMessageRecord(msg, false);
+
+   
+   const storedMessages = loadMessagesFromLocalStorage();
+   storedMessages.push({ ...msg, isSent: false });
+   saveMessagesToLocalStorage(storedMessages);
+
+    outputElm.scrollTo(0, outputElm.scrollHeight);
+}
+
 
 function loadNewChatMessages(e){
     const msg = JSON.parse(e.data);
-    addChatMessageRecord({
-        message: msg.message,
-        email: msg.email,
-        senderPicture: msg.senderPicture,
-        senderName: msg.senderName
-    });
+    // addChatMessageRecord({
+    //     message: msg.message,
+    //     email: msg.email,
+    //     senderPicture: msg.senderPicture,
+    //     senderName: msg.senderName
+    // });
+   
+    handleNewChatMessage(msg);
 }
