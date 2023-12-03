@@ -4,8 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat App - Web Sockets</title>
+    <link rel="stylesheet" href="/node_modules/bootstrap/dist/css/bootstrap.min.css">
+    <script type="module" src="/node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script type="module" src="js/main.js"></script>
 </head>
-<body>
-    <h1>Chat App</h1>
+<body class="d-flex flex-column vh-100">
+    <header class="p-2 border-bottom
+            d-flex justify-content-between">
+        <div>
+            <h2>Chat App</h2>
+            <h4 class="m-0">WebSockets in Action</h4>
+        </div>
+        <div id="account">
+            <div id="account-details" class="d-none">
+                <div id="user-name">Name</div>
+                <div id="user-email">Email</div>
+                <div id="btn-sign-out">Sign Out</div>
+            </div>
+        </div>
+    </header>
+    <main class="flex-grow-1 d-flex flex-column">
+        <div id="output-wrapper" class="border flex-grow-1 pb-2">
+            <div id="output" class="p-2 h-100">
+
+            </div>
+        </div>
+        <form action="javascript:void(0)" class="border-top d-flex gap-2 p-2 container-lg">
+            <input class="form-control" id="txt-message" type="text" placeholder="Eg. Hello Guys!">
+            <button class="btn btn-primary" id="btn-send">Send</button>
+        </form>
+    </main>
+    <div id="login-overlay" class="vw-100 d-none
+             vh-100 d-flex align-items-center
+             justify-content-center">
+        <div class="wrapper text-center">
+            <h2 class="text-white">Welcome to Chat App</h2>
+            <h3 class="text-white">Sign In</h3>
+            <button id="btn-sign-in" class="btn btn-primary mt-2">
+                Sign In with Google
+            </button>
+        </div>
+    </div>
+    <div id="loader" class="vw-100 vh-100">
+        <div id="loader-wrapper">
+            <div class="lds-ring"><div></div><div></div><div></div><div></div></div>            
+        </div>
+    </div>
+    </main>
 </body>
 </html>

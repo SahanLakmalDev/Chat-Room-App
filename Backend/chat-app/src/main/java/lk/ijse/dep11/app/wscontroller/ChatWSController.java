@@ -13,9 +13,11 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import javax.validation.ConstraintViolation;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class ChatWSController extends TextWebSocketHandler {
     private final List<WebSocketSession> webSocketSessionList = new ArrayList<>();
@@ -28,42 +30,36 @@ public class ChatWSController extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        super.afterConnectionEstablished(session);
         webSocketSessionList.add(session);
     }
-
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-        super.afterConnectionClosed(session, status);
         webSocketSessionList.remove(session);
     }
-
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        super.handleTextMessage(session, message);
-        String payload = message.getPayload();
-
         try {
-            MessageTO messageObj = mapper.readValue(payload, MessageTO.class);
-            Errors errors = (Errors) validatorFactoryBean.validate(messageObj);
-
-            if(errors.hasErrors()){
-                session.sendMessage(new TextMessage("Invalid Message schema"));
-            }else {
-                broadcastMessage(session, messageObj);
+            // @RequestBody
+            // Let's try to deserialize (json -> java object) the payload
+            MessageTO messageObj = mapper.readValue(message.getPayload(), MessageTO.class);
+            // Now it is time to validate the message
+            // @Valid
+            Set<ConstraintViolation<MessageTO>> violations = validatorFactoryBean.getValidator().validate(messageObj);
+            if (violations.isEmpty()) {
+                // If message is validated,
+                // Then let's broadcast this message to other clients expect this (session) client
+                for (WebSocketSession webSocketSession : webSocketSessionList) {
+                    if (webSocketSession == session) continue;
+                    if (webSocketSession.isOpen()) {
+                        webSocketSession.sendMessage(new TextMessage(message.getPayload()));
+                    }
+                }
+            } else {
+                session.sendMessage(new TextMessage("Invalid Message Schema"));
             }
-        }catch (JacksonException exp){
+        } catch (JacksonException exp) {
             session.sendMessage(new TextMessage("Invalid JSON"));
         }
     }
-    private void broadcastMessage(WebSocketSession senderSession, MessageTO messageTO) throws IOException {
-        String jsonMessage = mapper.writeValueAsString(messageTO);
-        TextMessage textMessage = new TextMessage(jsonMessage);
 
-        for(WebSocketSession session : webSocketSessionList){
-            if(!session.equals(senderSession)){
-                session.sendMessage(textMessage);
-            }
-        }
-    }
 }
