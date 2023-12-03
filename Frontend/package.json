@@ -1,0 +1,16 @@
+{
+  "name": "chat-app-frontend",
+  "version": "1.0.0",
+  "description": "## License This is Licensed under [MIT](License.txt)",
+  "source": "src/index.html",
+  "scripts": {
+    "start": "parcel --no-cache",
+    "build": "rm -rf dist && parcel build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "parcel": "^2.10.3"
+  }
+}
