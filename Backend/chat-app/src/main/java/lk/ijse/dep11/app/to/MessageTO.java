@@ -19,4 +19,6 @@ public class MessageTO implements Serializable {
     @NotEmpty(message = "Email can't be empty")
     @Email(message = "Invalid email")
     private String email;
+    private String senderPicture;
+    private String senderName;
 }
